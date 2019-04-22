@@ -10,47 +10,69 @@
 
 int vulkanCall(VkResult result, const char* file, int line);
 
-struct VulkanLayer {
-  VkLayerProperties LayerProperties;
-  std::vector<VkExtensionProperties> ExtensionProperties;
-};
+VkApplicationInfo CreateVulkanApplicationInfo(const char* appName=nullptr);
 
-struct VulkanPhysicalDevice {
-  VkPhysicalDevice PhysicalDevice;
-  std::vector<std::vector<VkExtensionProperties>> ExtensionProperties;
-};
-
-struct VulkanInstanceInfo {
-
-  std::vector<VulkanLayer> Layers;
-  std::vector<const char*> layerNames;
-  std::vector<const char*> extensionNames;
-
-  void GetLayers();
-};
-
-struct VulkanInstance {
-
-  VulkanInstanceInfo InstanceInfo;
-  VkInstance Instance;
-  std::vector<VulkanPhysicalDevice> PhysicalDevices;
-
-  ~VulkanInstance() {
-    vkDestroyInstance(Instance, NULL);
-  }
+struct VulkanLayerProperties {
+  std::vector<VkLayerProperties> LayerProperties;
   
-  void CreateInstance();
-  void GetPhysicalDevices();
+  void Fetch();
+  void Print();
+  void GetLayerNames(std::vector<const char*>& layerNames);
+  void GetLayerNames(std::vector<const char*>& layerNames,
+		     const std::vector<int>& selectedLayers);
 };
 
-struct VulkanDeviceInfo {
-
-  std::vector<VkQueueFamilyProperties> QueueFamilyProperties;
-  VkPhysicalDeviceMemoryProperties PhysicalDeviceMemoryProperties;
-  VkPhysicalDeviceProperties PhysicalDeviceProperties;
-
-  void GetPhysicalDeviceInfo(VkPhysicalDevice physicalDevice);
+struct VulkanExtensionProperties {
+  std::vector<std::vector<VkExtensionProperties>> ExtensionProperties;
+  
+  void Fetch(const std::vector<const char*>& layerNames);
+  void Print();
+  void GetExtensionNames(std::vector<const char*>& extensionNames);
 };
+
+
+
+/* struct VulkanPhysicalDevice { */
+/*   VkPhysicalDevice PhysicalDevice; */
+/*   std::vector<std::vector<VkExtensionProperties>> ExtensionProperties; */
+/* }; */
+
+/* struct VulkanInstanceInfo { */
+
+/*   std::vector<VulkanLayer> Layers; */
+/*   std::vector<const char*> layerNames; */
+/*   std::vector<const char*> extensionNames; */
+
+/*   void GetLayers(); */
+/* }; */
+
+/* void GetLayerNames(const VkInstance instance, */
+/* 		   std::vector<const char*>& layerNames) { */
+
+/* } */
+
+/* struct VulkanInstance { */
+
+/*   VkInstance Instance; */
+  
+/*   std::vector<VulkanPhysicalDevice> PhysicalDevices; */
+
+/*   ~VulkanInstance() { */
+/*     vkDestroyInstance(Instance, NULL); */
+/*   } */
+  
+/*   void CreateInstance(); */
+/*   void GetPhysicalDevices(); */
+/* }; */
+
+/* struct VulkanDeviceInfo { */
+
+/*   std::vector<VkQueueFamilyProperties> QueueFamilyProperties; */
+/*   VkPhysicalDeviceMemoryProperties PhysicalDeviceMemoryProperties; */
+/*   VkPhysicalDeviceProperties PhysicalDeviceProperties; */
+
+/*   void GetPhysicalDeviceInfo(VkPhysicalDevice physicalDevice); */
+/* }; */
 
 
 #endif // VULKAN_INFO_H_

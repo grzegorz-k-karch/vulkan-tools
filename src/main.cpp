@@ -8,61 +8,58 @@
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 
-// Google logging library
-#include "glog/logging.h"
-
 #include <iostream>
 
 // based on
 // https://software.intel.com/en-us/articles/api-without-secrets-introduction-to-vulkan-part-2
-bool CheckExtensionAvailability(const char* extension_name,
-				const std::vector<VkExtensionProperties>& available_extensions) {
-  for( size_t i = 0; i < available_extensions.size(); ++i ) {
-    if( strcmp( available_extensions[i].extensionName, extension_name ) == 0 ) {
-      return true;
-    }
-  }
-  return false;
-}
+// bool CheckExtensionAvailability(const char* extension_name,
+// 				const std::vector<VkExtensionProperties>& available_extensions) {
+//   for( size_t i = 0; i < available_extensions.size(); ++i ) {
+//     if( strcmp( available_extensions[i].extensionName, extension_name ) == 0 ) {
+//       return true;
+//     }
+//   }
+//   return false;
+// }
 
 
-bool checkKHR()
-{
-  uint32_t extensions_count = 0;
-  if( (vkEnumerateInstanceExtensionProperties( nullptr, &extensions_count, nullptr ) != VK_SUCCESS) ||
-      (extensions_count == 0) ) {
-    std::cout << "Error occurred during instance extensions enumeration!" << std::endl;
-    return false;
-  }
+// bool checkKHR()
+// {
+//   uint32_t extensions_count = 0;
+//   if( (vkEnumerateInstanceExtensionProperties( nullptr, &extensions_count, nullptr ) != VK_SUCCESS) ||
+//       (extensions_count == 0) ) {
+//     std::cout << "Error occurred during instance extensions enumeration!" << std::endl;
+//     return false;
+//   }
 
-  std::vector<VkExtensionProperties> available_extensions( extensions_count );
-  if( vkEnumerateInstanceExtensionProperties( nullptr, &extensions_count, &available_extensions[0] ) != VK_SUCCESS ) {
-    std::cout << "Error occurred during instance extensions enumeration!" << std::endl;
-    return false;
-  }
+//   std::vector<VkExtensionProperties> available_extensions( extensions_count );
+//   if( vkEnumerateInstanceExtensionProperties( nullptr, &extensions_count, &available_extensions[0] ) != VK_SUCCESS ) {
+//     std::cout << "Error occurred during instance extensions enumeration!" << std::endl;
+//     return false;
+//   }
 
-  std::vector<const char*> extensions = {
-    VK_KHR_SURFACE_EXTENSION_NAME,
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-    VK_KHR_WIN32_SURFACE_EXTENSION_NAME
-#elif defined(VK_USE_PLATFORM_XCB_KHR)
-    VK_KHR_XCB_SURFACE_EXTENSION_NAME
-#elif defined(VK_USE_PLATFORM_XLIB_KHR)
-    VK_KHR_XLIB_SURFACE_EXTENSION_NAME
-#endif
-  };
+//   std::vector<const char*> extensions = {
+//     VK_KHR_SURFACE_EXTENSION_NAME,
+// #if defined(VK_USE_PLATFORM_WIN32_KHR)
+//     VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+// #elif defined(VK_USE_PLATFORM_XCB_KHR)
+//     VK_KHR_XCB_SURFACE_EXTENSION_NAME
+// #elif defined(VK_USE_PLATFORM_XLIB_KHR)
+//     VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+// #endif
+//   };
 
-  for( size_t i = 0; i < extensions.size(); ++i ) {
-    if( !CheckExtensionAvailability( extensions[i], available_extensions ) ) {
-      std::cout << "Could not find instance extension named \"" << extensions[i] << "\"!" << std::endl;
-      return false;
-    }
-    else {
-      std::cout << "Instance extension named \"" << extensions[i] << "\" is available." << std::endl;
-    }
-  }
+//   for( size_t i = 0; i < extensions.size(); ++i ) {
+//     if( !CheckExtensionAvailability( extensions[i], available_extensions ) ) {
+//       std::cout << "Could not find instance extension named \"" << extensions[i] << "\"!" << std::endl;
+//       return false;
+//     }
+//     else {
+//       std::cout << "Instance extension named \"" << extensions[i] << "\" is available." << std::endl;
+//     }
+//   }
 
-}
+// }
 
 // loosely based on https://en.wikipedia.org/wiki/XCB
 // and https://www.codeproject.com/Articles/1089819/An-Introduction-to-XCB-Programming
@@ -70,7 +67,7 @@ xcb_window_t CreateWindow(xcb_window_t *window, xcb_connection_t **conn) {
 
   *conn = xcb_connect(NULL,NULL);;
   if (xcb_connection_has_error(*conn)) {
-    LOG(FATAL) << "XCB connection failed. Exiting";
+    std::cerr << "XCB connection failed. Exiting";
   }
 
   /* Obtain setup info and access the screen */
@@ -117,8 +114,43 @@ xcb_window_t CreateWindow(xcb_window_t *window, xcb_connection_t **conn) {
 
 int main(int argc, char** argv) {
 
-  VulkanInstance vulkanInstance;
-  vulkanInstance.CreateInstance();
+  VulkanLayerProperties vulkanLayerPropeties;
+  vulkanLayerPropeties.Fetch();
+  // vulkanLayerPropeties.Print();
+
+  std::vector<const char*> layerNames;
+  std::vector<int> selectedLayers = {0};
+  vulkanLayerPropeties.GetLayerNames(layerNames, selectedLayers);
+
+  VulkanExtensionProperties vulkanExtensionPropeties;
+  vulkanExtensionPropeties.Fetch(layerNames);
+  // vulkanExtensionPropeties.Print();
+  std::vector<const char*> extensionNames;
+  vulkanExtensionPropeties.GetExtensionNames(extensionNames);
+
+  VkApplicationInfo vulkanApplicationInfo =
+    CreateVulkanApplicationInfo("VulkanTools");
+
+  VkInstanceCreateInfo instanceCreateInfo = {
+    VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+    nullptr,
+    0,
+    &vulkanApplicationInfo,    
+    static_cast<uint32_t>(layerNames.size()),
+    layerNames.data(),
+    static_cast<uint32_t>(extensionNames.size()),
+    extensionNames.data()
+  };
+
+  VkInstance Instance;
+  vulkanCall(vkCreateInstance(&instanceCreateInfo, nullptr, &Instance),
+  	     __FILE__, __LINE__);
+}
+
+
+  // VulkanInstance vulkanInstance;
+  // vulkanInstance.CreateInstance();
+  
   // vulkanInstance.GetPhysicalDevices();
 
   // VulkanDeviceInfo vulkanDeviceInfo;
@@ -253,5 +285,5 @@ int main(int argc, char** argv) {
   // // // }
 
 
-  return 0;
-}
+//   return 0;
+// }

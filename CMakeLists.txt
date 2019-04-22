@@ -46,7 +46,6 @@ add_executable(vulkan-skeleton ${CPP_FILES} ${HPP_FILES})
 
 target_link_libraries(vulkan-skeleton
   vulkan
-  glog
   xcb
   ${VULKAN_LIB_LIST})
 
