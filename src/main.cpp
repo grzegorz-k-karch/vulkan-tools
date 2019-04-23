@@ -3,11 +3,13 @@
 #include "vulkan/vulkan_xcb.h"
 
 #include "VulkanInfo.h"
+#include "XmlUtils.h"
 
 // xcb
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 
+// std
 #include <iostream>
 
 // based on
@@ -116,11 +118,14 @@ int main(int argc, char** argv) {
 
   VulkanLayerProperties vulkanLayerPropeties;
   vulkanLayerPropeties.Fetch();
+  pt::ptree pt;
+  vulkanLayerPropeties.Write(pt);
+  xmlWrite(pt, std::string("config.xml"));
   // vulkanLayerPropeties.Print();
 
   std::vector<const char*> layerNames;
-  std::vector<int> selectedLayers = {0};
-  vulkanLayerPropeties.GetLayerNames(layerNames, selectedLayers);
+  // std::vector<int> selectedLayers = {0};
+  vulkanLayerPropeties.GetLayerNames(layerNames);//, selectedLayers);
 
   VulkanExtensionProperties vulkanExtensionPropeties;
   vulkanExtensionPropeties.Fetch(layerNames);
@@ -128,24 +133,25 @@ int main(int argc, char** argv) {
   std::vector<const char*> extensionNames;
   vulkanExtensionPropeties.GetExtensionNames(extensionNames);
 
-  VkApplicationInfo vulkanApplicationInfo =
-    CreateVulkanApplicationInfo("VulkanTools");
+  
 
-  VkInstanceCreateInfo instanceCreateInfo = {
-    VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-    nullptr,
-    0,
-    &vulkanApplicationInfo,
-    static_cast<uint32_t>(layerNames.size()),
-    layerNames.data(),
-    static_cast<uint32_t>(extensionNames.size()),
-    extensionNames.data()
-  };
+  // VkApplicationInfo vulkanApplicationInfo =
+  //   CreateVulkanApplicationInfo("VulkanTools");
 
-  VkInstance Instance;
-  vulkanCall(vkCreateInstance(&instanceCreateInfo, nullptr, &Instance),
-  	     __FILE__, __LINE__);
+  // VkInstanceCreateInfo instanceCreateInfo = {
+  //   VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+  //   nullptr,
+  //   0,
+  //   &vulkanApplicationInfo,
+  //   static_cast<uint32_t>(layerNames.size()),
+  //   layerNames.data(),
+  //   static_cast<uint32_t>(extensionNames.size()),
+  //   extensionNames.data()
+  // };
 
+  // VkInstance Instance;
+  // vulkanCall(vkCreateInstance(&instanceCreateInfo, nullptr, &Instance),
+  // 	     __FILE__, __LINE__);
 
 
   return 0;

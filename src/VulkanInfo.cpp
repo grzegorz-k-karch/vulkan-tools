@@ -1,9 +1,12 @@
+// std
 #include <iostream>
 #include <unordered_set>
 #include <algorithm>
 #include <numeric>
 #include <cstring>
 
+// project
+#include "XmlUtils.h"
 #include "VulkanInfo.h"
 
 int vulkanCall(VkResult result, const char* file, int line) {
@@ -44,6 +47,14 @@ void VulkanLayerProperties::Print() {
   for (int i = 0; i < LayerProperties.size(); i++) {
     std::cout << "\t[" << i << "]: "
 	      << LayerProperties[i].layerName << std::endl;
+  }
+}
+
+void VulkanLayerProperties::Write(pt::ptree& tree) {
+
+  tree.put("info.name", "Layer names");
+  for (int i = 0; i < LayerProperties.size(); i++) {
+    tree.add("info.layer", LayerProperties[i].layerName);
   }
 }
 

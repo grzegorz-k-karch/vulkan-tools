@@ -1,12 +1,17 @@
 #ifndef VULKAN_INFO_H_
 #define VULKAN_INFO_H_
 
-// Vulkan
+// vulkan
 #include "vulkan/vulkan_core.h"
 #include "vulkan/vulkan.h"
 
 // std
 #include <vector>
+#include <iostream>
+
+// project
+#include "XmlUtils.h"
+
 
 int vulkanCall(VkResult result, const char* file, int line);
 
@@ -17,6 +22,7 @@ struct VulkanLayerProperties {
   
   void Fetch();
   void Print();
+  void Write(pt::ptree& pt);
   void GetLayerNames(std::vector<const char*>& layerNames);
   void GetLayerNames(std::vector<const char*>& layerNames,
 		     const std::vector<int>& selectedLayers);
