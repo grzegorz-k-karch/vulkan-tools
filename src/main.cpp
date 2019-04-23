@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
     VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
     nullptr,
     0,
-    &vulkanApplicationInfo,    
+    &vulkanApplicationInfo,
     static_cast<uint32_t>(layerNames.size()),
     layerNames.data(),
     static_cast<uint32_t>(extensionNames.size()),
@@ -145,12 +145,16 @@ int main(int argc, char** argv) {
   VkInstance Instance;
   vulkanCall(vkCreateInstance(&instanceCreateInfo, nullptr, &Instance),
   	     __FILE__, __LINE__);
+
+
+
+  return 0;
 }
 
 
   // VulkanInstance vulkanInstance;
   // vulkanInstance.CreateInstance();
-  
+
   // vulkanInstance.GetPhysicalDevices();
 
   // VulkanDeviceInfo vulkanDeviceInfo;
@@ -168,9 +172,9 @@ int main(int argc, char** argv) {
 
   // std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfos;
   // std::vector<float> queuePriorities = {1.0f};
-  
+
   // deviceQueueCreateInfos.push_back({
-  //     VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, 
+  //     VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
   // 	nullptr,
   // 	0,
   // 	0, //selected_graphics_queue_family_index,
