@@ -2,137 +2,32 @@
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_xcb.h"
 
-#include "VulkanInfo.h"
+#include "VulkanUtils.h"
 #include "XmlUtils.h"
-
-// xcb
-#include <xcb/xcb.h>
-#include <xcb/xproto.h>
 
 // std
 #include <iostream>
 
-// based on
-// https://software.intel.com/en-us/articles/api-without-secrets-introduction-to-vulkan-part-2
-// bool CheckExtensionAvailability(const char* extension_name,
-// 				const std::vector<VkExtensionProperties>& available_extensions) {
-//   for( size_t i = 0; i < available_extensions.size(); ++i ) {
-//     if( strcmp( available_extensions[i].extensionName, extension_name ) == 0 ) {
-//       return true;
-//     }
-//   }
-//   return false;
-// }
-
-
-// bool checkKHR()
-// {
-//   uint32_t extensions_count = 0;
-//   if( (vkEnumerateInstanceExtensionProperties( nullptr, &extensions_count, nullptr ) != VK_SUCCESS) ||
-//       (extensions_count == 0) ) {
-//     std::cout << "Error occurred during instance extensions enumeration!" << std::endl;
-//     return false;
-//   }
-
-//   std::vector<VkExtensionProperties> available_extensions( extensions_count );
-//   if( vkEnumerateInstanceExtensionProperties( nullptr, &extensions_count, &available_extensions[0] ) != VK_SUCCESS ) {
-//     std::cout << "Error occurred during instance extensions enumeration!" << std::endl;
-//     return false;
-//   }
-
-//   std::vector<const char*> extensions = {
-//     VK_KHR_SURFACE_EXTENSION_NAME,
-// #if defined(VK_USE_PLATFORM_WIN32_KHR)
-//     VK_KHR_WIN32_SURFACE_EXTENSION_NAME
-// #elif defined(VK_USE_PLATFORM_XCB_KHR)
-//     VK_KHR_XCB_SURFACE_EXTENSION_NAME
-// #elif defined(VK_USE_PLATFORM_XLIB_KHR)
-//     VK_KHR_XLIB_SURFACE_EXTENSION_NAME
-// #endif
-//   };
-
-//   for( size_t i = 0; i < extensions.size(); ++i ) {
-//     if( !CheckExtensionAvailability( extensions[i], available_extensions ) ) {
-//       std::cout << "Could not find instance extension named \"" << extensions[i] << "\"!" << std::endl;
-//       return false;
-//     }
-//     else {
-//       std::cout << "Instance extension named \"" << extensions[i] << "\" is available." << std::endl;
-//     }
-//   }
-
-// }
-
-// loosely based on https://en.wikipedia.org/wiki/XCB
-// and https://www.codeproject.com/Articles/1089819/An-Introduction-to-XCB-Programming
-xcb_window_t CreateWindow(xcb_window_t *window, xcb_connection_t **conn) {
-
-  *conn = xcb_connect(NULL,NULL);;
-  if (xcb_connection_has_error(*conn)) {
-    std::cerr << "XCB connection failed. Exiting";
-  }
-
-  /* Obtain setup info and access the screen */
-  const xcb_setup_t *setup = xcb_get_setup(*conn);
-  xcb_screen_t *screen = xcb_setup_roots_iterator(setup).data;;
-
-  /* Create window */
-  *window = xcb_generate_id(*conn);
-  uint32_t prop_name = XCB_CW_BACK_PIXEL;
-  uint32_t prop_value = screen->white_pixel;
-
-  xcb_create_window(*conn, screen->root_depth,
-		    *window, screen->root, 0, 0, 100, 100, 1,
-		    XCB_WINDOW_CLASS_INPUT_OUTPUT,
-		    screen->root_visual, prop_name, &prop_value);
-
-  // *conn = xcb_connect(NULL,NULL);;
-  // if (xcb_connection_has_error(*conn)) {
-  //   LOG(FATAL) << "XCB connection failed. Exiting";
-  // }
-
-  // *window = xcb_generate_id(*conn);
-
-  // xcb_screen_t *s = xcb_setup_roots_iterator(xcb_get_setup(*conn)).data;
-
-  // uint8_t depth = XCB_COPY_FROM_PARENT;
-  // xcb_window_t parent;
-  // int16_t x = 100;
-  // int16_t y = 100;
-  // uint16_t width = 640;
-  // uint16_t height = 480;
-  // uint16_t border_width = 0;
-  // uint16_t _class = XCB_WINDOW_CLASS_INPUT_OUTPUT;
-  // xcb_visualid_t visual = XCB_COPY_FROM_PARENT;
-  // uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-  // const uint32_t value_list[2] = {s->white_pixel,
-  //                   XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_KEY_PRESS};
-
-  // xcb_void_cookie_t window_cookie = xcb_create_window(*conn, depth, *window, parent, x, y,
-  //                               width, height, border_width,
-  //                               _class, visual, value_mask, value_list);
-
-}
 
 int main(int argc, char** argv) {
 
+  pt::ptree pt;
+  std::vector<const char*> extensionNames;
+  std::vector<const char*> layerNames;
+
   VulkanLayerProperties vulkanLayerPropeties;
   vulkanLayerPropeties.Fetch();
-  pt::ptree pt;
-  vulkanLayerPropeties.Write(pt);
-  xmlWrite(pt, std::string("config.xml"));
-  // vulkanLayerPropeties.Print();
-
-  std::vector<const char*> layerNames;
-  // std::vector<int> selectedLayers = {0};
-  vulkanLayerPropeties.GetLayerNames(layerNames);//, selectedLayers);
+  vulkanLayerPropeties.GetLayerNames(layerNames);
 
   VulkanExtensionProperties vulkanExtensionPropeties;
+  // add nullptr to get default extensions
+  layerNames.push_back(nullptr);
   vulkanExtensionPropeties.Fetch(layerNames);
-  // vulkanExtensionPropeties.Print();
-  std::vector<const char*> extensionNames;
   vulkanExtensionPropeties.GetExtensionNames(extensionNames);
 
+  vulkanLayerPropeties.Write(pt);
+  vulkanExtensionPropeties.Write(pt);
+  XmlWrite(pt, std::string("config.xml"));
   
 
   // VkApplicationInfo vulkanApplicationInfo =
@@ -297,3 +192,110 @@ int main(int argc, char** argv) {
 
 //   return 0;
 // }
+
+// based on
+// https://software.intel.com/en-us/articles/api-without-secrets-introduction-to-vulkan-part-2
+// bool CheckExtensionAvailability(const char* extension_name,
+// 				const std::vector<VkExtensionProperties>& available_extensions) {
+//   for( size_t i = 0; i < available_extensions.size(); ++i ) {
+//     if( strcmp( available_extensions[i].extensionName, extension_name ) == 0 ) {
+//       return true;
+//     }
+//   }
+//   return false;
+// }
+
+
+// bool checkKHR()
+// {
+//   uint32_t extensions_count = 0;
+//   if( (vkEnumerateInstanceExtensionProperties( nullptr, &extensions_count, nullptr ) != VK_SUCCESS) ||
+//       (extensions_count == 0) ) {
+//     std::cout << "Error occurred during instance extensions enumeration!" << std::endl;
+//     return false;
+//   }
+
+//   std::vector<VkExtensionProperties> available_extensions( extensions_count );
+//   if( vkEnumerateInstanceExtensionProperties( nullptr, &extensions_count, &available_extensions[0] ) != VK_SUCCESS ) {
+//     std::cout << "Error occurred during instance extensions enumeration!" << std::endl;
+//     return false;
+//   }
+
+//   std::vector<const char*> extensions = {
+//     VK_KHR_SURFACE_EXTENSION_NAME,
+// #if defined(VK_USE_PLATFORM_WIN32_KHR)
+//     VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+// #elif defined(VK_USE_PLATFORM_XCB_KHR)
+//     VK_KHR_XCB_SURFACE_EXTENSION_NAME
+// #elif defined(VK_USE_PLATFORM_XLIB_KHR)
+//     VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+// #endif
+//   };
+
+//   for( size_t i = 0; i < extensions.size(); ++i ) {
+//     if( !CheckExtensionAvailability( extensions[i], available_extensions ) ) {
+//       std::cout << "Could not find instance extension named \"" << extensions[i] << "\"!" << std::endl;
+//       return false;
+//     }
+//     else {
+//       std::cout << "Instance extension named \"" << extensions[i] << "\" is available." << std::endl;
+//     }
+//   }
+
+// }
+
+// xcb
+#include <xcb/xcb.h>
+#include <xcb/xproto.h>
+
+
+// loosely based on https://en.wikipedia.org/wiki/XCB
+// and https://www.codeproject.com/Articles/1089819/An-Introduction-to-XCB-Programming
+xcb_window_t CreateWindow(xcb_window_t *window, xcb_connection_t **conn) {
+
+  *conn = xcb_connect(NULL,NULL);;
+  if (xcb_connection_has_error(*conn)) {
+    std::cerr << "XCB connection failed. Exiting";
+  }
+
+  /* Obtain setup info and access the screen */
+  const xcb_setup_t *setup = xcb_get_setup(*conn);
+  xcb_screen_t *screen = xcb_setup_roots_iterator(setup).data;;
+
+  /* Create window */
+  *window = xcb_generate_id(*conn);
+  uint32_t prop_name = XCB_CW_BACK_PIXEL;
+  uint32_t prop_value = screen->white_pixel;
+
+  xcb_create_window(*conn, screen->root_depth,
+		    *window, screen->root, 0, 0, 100, 100, 1,
+		    XCB_WINDOW_CLASS_INPUT_OUTPUT,
+		    screen->root_visual, prop_name, &prop_value);
+
+  // *conn = xcb_connect(NULL,NULL);;
+  // if (xcb_connection_has_error(*conn)) {
+  //   LOG(FATAL) << "XCB connection failed. Exiting";
+  // }
+
+  // *window = xcb_generate_id(*conn);
+
+  // xcb_screen_t *s = xcb_setup_roots_iterator(xcb_get_setup(*conn)).data;
+
+  // uint8_t depth = XCB_COPY_FROM_PARENT;
+  // xcb_window_t parent;
+  // int16_t x = 100;
+  // int16_t y = 100;
+  // uint16_t width = 640;
+  // uint16_t height = 480;
+  // uint16_t border_width = 0;
+  // uint16_t _class = XCB_WINDOW_CLASS_INPUT_OUTPUT;
+  // xcb_visualid_t visual = XCB_COPY_FROM_PARENT;
+  // uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
+  // const uint32_t value_list[2] = {s->white_pixel,
+  //                   XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_KEY_PRESS};
+
+  // xcb_void_cookie_t window_cookie = xcb_create_window(*conn, depth, *window, parent, x, y,
+  //                               width, height, border_width,
+  //                               _class, visual, value_mask, value_list);
+
+}

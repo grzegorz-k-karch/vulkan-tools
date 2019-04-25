@@ -6,6 +6,6 @@
 
 namespace pt = boost::property_tree;
 
-void xmlWrite(pt::ptree& tree, const std::string& filename);
+void XmlWrite(pt::ptree& tree, const std::string& filename);
 
 #endif // XMLUTILS_H_

@@ -7,7 +7,7 @@
 
 // project
 #include "XmlUtils.h"
-#include "VulkanInfo.h"
+#include "VulkanUtils.h"
 
 int vulkanCall(VkResult result, const char* file, int line) {
   if (result != VK_SUCCESS) {
@@ -54,7 +54,8 @@ void VulkanLayerProperties::Write(pt::ptree& tree) {
 
   tree.put("info.name", "Layer names");
   for (int i = 0; i < LayerProperties.size(); i++) {
-    tree.add("info.layer", LayerProperties[i].layerName);
+    tree.add("info.layers.name", LayerProperties[i].layerName);
+    tree.add("info.layers.index", i);
   }
 }
 
@@ -75,12 +76,11 @@ void VulkanLayerProperties::GetLayerNames(std::vector<const char*>& layerNames,
 }
 
 void VulkanExtensionProperties::Fetch(const std::vector<const char*>& layerNames) {
-  // to get extension enabled by default, as layerName pass nullptr to
-  // vkEnumerateInstanceExtensionProperties
-  ExtensionProperties.resize(layerNames.size()+1);
+
+  ExtensionProperties.resize(layerNames.size());
   
-  for (int i = 0; i <= layerNames.size(); i++) {
-    const char* layerName = i < layerNames.size() ? layerNames[i] : nullptr;
+  for (int i = 0; i < layerNames.size(); i++) {
+    const char* layerName = layerNames[i];
     uint32_t propertyCount;
     vkEnumerateInstanceExtensionProperties(layerName, &propertyCount, nullptr);
     ExtensionProperties[i].resize(propertyCount);
@@ -98,6 +98,18 @@ void VulkanExtensionProperties::Print() {
     
       std::cout << "\t[" << i << "][" << j << "]: "
 	      << ExtensionProperties[i][j].extensionName << std::endl;
+    }
+  }
+}
+
+void VulkanExtensionProperties::Write(pt::ptree& tree) {
+
+  tree.put("info.name", "Extension names");
+  for (int i = 0; i < ExtensionProperties.size(); i++) {
+    for (int j = 0; j < ExtensionProperties[i].size(); j++) {
+      
+      tree.add("info.extensions.name", ExtensionProperties[i][j].extensionName);
+      tree.add("info.extensions.fromLayer", i);
     }
   }
 }

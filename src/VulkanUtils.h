@@ -33,6 +33,7 @@ struct VulkanExtensionProperties {
   
   void Fetch(const std::vector<const char*>& layerNames);
   void Print();
+  void Write(pt::ptree& pt);
   void GetExtensionNames(std::vector<const char*>& extensionNames);
 };
 
