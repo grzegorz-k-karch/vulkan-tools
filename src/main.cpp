@@ -8,9 +8,11 @@
 // std
 #include <iostream>
 
+// boost
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
 
-int main(int argc, char** argv) {
-
+void write_properties() {
   pt::ptree pt;
   std::vector<const char*> extensionNames;
   std::vector<const char*> layerNames;
@@ -28,7 +30,27 @@ int main(int argc, char** argv) {
   vulkanLayerPropeties.Write(pt);
   vulkanExtensionPropeties.Write(pt);
   XmlWrite(pt, std::string("config.xml"));
-  
+}
+
+int main(int argc, char** argv) {
+
+  try {
+    po::options_description desc{"Options"};
+    desc.add_options()
+      ("help,h", "Help screen");
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+      std::cout << desc << std::endl;
+    }
+  }
+  catch(const std::runtime_error &ex) {
+    std::cerr << ex.what() << std::endl;
+  }
+
+  write_properties();
 
   // VkApplicationInfo vulkanApplicationInfo =
   //   CreateVulkanApplicationInfo("VulkanTools");

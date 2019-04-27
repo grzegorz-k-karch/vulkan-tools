@@ -3,11 +3,17 @@ cmake_minimum_required(VERSION 3.7.1)
 # set(CMAKE_MODULE PATH  "/usr/local/share/cmake-3.14/Modules/")
 # find_package(Vulkan HINTS "/usr/local/share/cmake-3.14/Modules/") # NO_DEFAULT_PATH)
 find_package(Vulkan)
+# find_package(Boost COMPONENTS program_options REQUIRED)
 
 if (NOT Vulkan_FOUND)
   message(SEND_ERROR "Failed to locate Vulkan SDK")
   return()
 endif()
+
+# if (NOT Boost_FOUND)
+#   message(SEND_ERROR "Failed to locate Boost")
+#   return()
+# endif()
 
 project(vulkan-tools)
 
@@ -17,7 +23,8 @@ add_executable(vulkan-tools ${CPP_FILES} ${HPP_FILES})
 
 target_link_libraries(vulkan-tools
   vulkan
-  xcb)
+  xcb
+  boost_program_options)
 
 set_property(TARGET vulkan-tools PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set_property(TARGET vulkan-tools PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin)
