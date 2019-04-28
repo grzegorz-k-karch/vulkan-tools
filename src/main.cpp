@@ -37,7 +37,8 @@ int main(int argc, char** argv) {
   try {
     po::options_description desc{"Options"};
     desc.add_options()
-      ("help,h", "Help screen");
+      ("help,h", "Help screen")
+      ("get-properties", "Write Vulkan properties to file");
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
@@ -45,12 +46,13 @@ int main(int argc, char** argv) {
     if (vm.count("help")) {
       std::cout << desc << std::endl;
     }
+    if (vm.count("get-properties")) {
+      write_properties();
+    }
   }
   catch(const std::runtime_error &ex) {
     std::cerr << ex.what() << std::endl;
   }
-
-  write_properties();
 
   // VkApplicationInfo vulkanApplicationInfo =
   //   CreateVulkanApplicationInfo("VulkanTools");

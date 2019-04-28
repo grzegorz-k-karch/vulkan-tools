@@ -1,19 +1,6 @@
 cmake_minimum_required(VERSION 3.7.1)
 
-# set(CMAKE_MODULE PATH  "/usr/local/share/cmake-3.14/Modules/")
-# find_package(Vulkan HINTS "/usr/local/share/cmake-3.14/Modules/") # NO_DEFAULT_PATH)
-find_package(Vulkan)
-# find_package(Boost COMPONENTS program_options REQUIRED)
-
-if (NOT Vulkan_FOUND)
-  message(SEND_ERROR "Failed to locate Vulkan SDK")
-  return()
-endif()
-
-# if (NOT Boost_FOUND)
-#   message(SEND_ERROR "Failed to locate Boost")
-#   return()
-# endif()
+find_package(Vulkan HINTS "/usr/local/share/cmake-3.14/Modules/")
 
 project(vulkan-tools)
 
