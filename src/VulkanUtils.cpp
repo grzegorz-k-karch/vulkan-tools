@@ -19,19 +19,6 @@ int vulkanCall(VkResult result, const char* file, int line) {
   }
 }
 
-VkApplicationInfo CreateVulkanApplicationInfo(const char* appName) {
-  VkApplicationInfo applicationInfo = {
-      VK_STRUCTURE_TYPE_APPLICATION_INFO,
-      nullptr,
-      appName,
-      VK_MAKE_VERSION(0, 0, 1),
-      "MyEngine",
-      VK_MAKE_VERSION(0, 0, 1),
-      VK_MAKE_VERSION(1, 1, 73)
-    };
-  return applicationInfo;
-}
-
 void VulkanLayerProperties::Fetch() {
 
   uint32_t propertyCount;
@@ -125,6 +112,34 @@ GetExtensionNames(std::vector<const char*>& extensionNames) {
   }
 }
 
+void VulkanInstance::CreateInstance(const std::vector<const char*>& layerNames,
+				    const std::vector<const char*>& extensionNames) {
+
+  VkApplicationInfo applicationInfo = {
+    VK_STRUCTURE_TYPE_APPLICATION_INFO, // sType
+    nullptr,                            // pNext
+    "Vulkan-Tools",                     // pApplicationName
+    VK_MAKE_VERSION(0, 0, 1),           // applicationVersion
+    "MyEngine",                         // pEngineName
+    VK_MAKE_VERSION(0, 0, 1),           // engineVersion
+    VK_MAKE_VERSION(1, 1, 73)           // apiVersion
+  };
+
+  VkInstanceCreateInfo instanceCreateInfo = {
+    VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,       // sType
+    nullptr,                                      // pNext
+    0,                                            // flags
+    &applicationInfo,                             // pApplicationInfo
+    static_cast<uint32_t>(layerNames.size()),     // enabledLayerCount
+    layerNames.data(),                            // ppEnabledLayerNames
+    static_cast<uint32_t>(extensionNames.size()), // enabledExtensionCount
+    extensionNames.data()                         // ppEnabledExtensionNames
+  };
+
+  vulkanCall(vkCreateInstance(&instanceCreateInfo, nullptr, &Instance),
+	     __FILE__, __LINE__);
+}
+
 // void VulkanLayer::FetchLayerExtensions() {
   
 //   uint32_t extensionCount;
@@ -137,22 +152,6 @@ GetExtensionNames(std::vector<const char*>& extensionNames) {
 // 					 ExtensionProperties.data());
 // }
 
-// void VulkanInstance::CreateInstance() {
-
-//   VkInstanceCreateInfo instanceCreateInfo = {
-//     VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-//     nullptr,
-//     0,
-//     nullptr, //&applicationInfo,    
-//     0, //static_cast<unsigned int>(InstanceInfo.layerNames.size()),
-//     nullptr, //InstanceInfo.layerNames.data(),
-//     0, //static_cast<unsigned int>(InstanceInfo.extensionNames.size()),
-//     nullptr, //InstanceInfo.extensionNames.data()
-//   };
-
-//   vulkanCall(vkCreateInstance(&instanceCreateInfo, nullptr, &Instance),
-// 	     __FILE__, __LINE__);
-// }
 
 // void VulkanInstance::GetPhysicalDevices() {
   

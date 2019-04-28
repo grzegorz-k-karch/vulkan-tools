@@ -13,20 +13,28 @@
 namespace po = boost::program_options;
 
 void write_properties() {
-  pt::ptree pt;
-  std::vector<const char*> extensionNames;
-  std::vector<const char*> layerNames;
 
   VulkanLayerProperties vulkanLayerPropeties;
   vulkanLayerPropeties.Fetch();
-  vulkanLayerPropeties.GetLayerNames(layerNames);
+  std::vector<int> selectedLayers = {0};
+  std::vector<const char*> layerNames;
+  vulkanLayerPropeties.GetLayerNames(layerNames, selectedLayers);
 
   VulkanExtensionProperties vulkanExtensionPropeties;
   // add nullptr to get default extensions
-  layerNames.push_back(nullptr);
+  // layerNames.push_back(nullptr);
   vulkanExtensionPropeties.Fetch(layerNames);
+  std::vector<const char*> extensionNames;
   vulkanExtensionPropeties.GetExtensionNames(extensionNames);
 
+  VulkanInstance vulkanInstance;
+  vulkanInstance.CreateInstance(layerNames, extensionNames);
+
+  // physical device
+
+  // device
+
+  pt::ptree pt;
   vulkanLayerPropeties.Write(pt);
   vulkanExtensionPropeties.Write(pt);
   XmlWrite(pt, std::string("config.xml"));
@@ -53,24 +61,6 @@ int main(int argc, char** argv) {
   catch(const std::runtime_error &ex) {
     std::cerr << ex.what() << std::endl;
   }
-
-  // VkApplicationInfo vulkanApplicationInfo =
-  //   CreateVulkanApplicationInfo("VulkanTools");
-
-  // VkInstanceCreateInfo instanceCreateInfo = {
-  //   VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-  //   nullptr,
-  //   0,
-  //   &vulkanApplicationInfo,
-  //   static_cast<uint32_t>(layerNames.size()),
-  //   layerNames.data(),
-  //   static_cast<uint32_t>(extensionNames.size()),
-  //   extensionNames.data()
-  // };
-
-  // VkInstance Instance;
-  // vulkanCall(vkCreateInstance(&instanceCreateInfo, nullptr, &Instance),
-  // 	     __FILE__, __LINE__);
 
 
   return 0;

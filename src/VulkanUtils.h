@@ -15,8 +15,6 @@
 
 int vulkanCall(VkResult result, const char* file, int line);
 
-VkApplicationInfo CreateVulkanApplicationInfo(const char* appName=nullptr);
-
 struct VulkanLayerProperties {
   std::vector<VkLayerProperties> LayerProperties;
   
@@ -37,6 +35,16 @@ struct VulkanExtensionProperties {
   void GetExtensionNames(std::vector<const char*>& extensionNames);
 };
 
+struct VulkanInstance {
+
+  VkInstance Instance;
+  ~VulkanInstance() {
+    vkDestroyInstance(Instance, NULL);
+  }
+  
+  void CreateInstance(const std::vector<const char*>& layerNames,
+		      const std::vector<const char*>& extensionsNames);
+};
 
 
 /* struct VulkanPhysicalDevice { */
@@ -58,19 +66,6 @@ struct VulkanExtensionProperties {
 
 /* } */
 
-/* struct VulkanInstance { */
-
-/*   VkInstance Instance; */
-  
-/*   std::vector<VulkanPhysicalDevice> PhysicalDevices; */
-
-/*   ~VulkanInstance() { */
-/*     vkDestroyInstance(Instance, NULL); */
-/*   } */
-  
-/*   void CreateInstance(); */
-/*   void GetPhysicalDevices(); */
-/* }; */
 
 /* struct VulkanDeviceInfo { */
 
