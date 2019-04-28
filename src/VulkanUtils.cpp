@@ -30,7 +30,7 @@ void VulkanLayerProperties::Fetch() {
 
 void VulkanLayerProperties::Print() {
 
-  std::cout << "VkLayerProperties:" << std::endl;
+  std::cout << "Layer properties:" << std::endl;
   for (int i = 0; i < LayerProperties.size(); i++) {
     std::cout << "\t[" << i << "]: "
 	      << LayerProperties[i].layerName << std::endl;
@@ -67,11 +67,10 @@ void VulkanExtensionProperties::Fetch(const std::vector<const char*>& layerNames
   ExtensionProperties.resize(layerNames.size());
   
   for (int i = 0; i < layerNames.size(); i++) {
-    const char* layerName = layerNames[i];
     uint32_t propertyCount;
-    vkEnumerateInstanceExtensionProperties(layerName, &propertyCount, nullptr);
+    vkEnumerateInstanceExtensionProperties(layerNames[i], &propertyCount, nullptr);
     ExtensionProperties[i].resize(propertyCount);
-    vkEnumerateInstanceExtensionProperties(layerName,
+    vkEnumerateInstanceExtensionProperties(layerNames[i],
 					   &propertyCount,
 					   ExtensionProperties[i].data());
   }
@@ -79,7 +78,7 @@ void VulkanExtensionProperties::Fetch(const std::vector<const char*>& layerNames
 
 void VulkanExtensionProperties::Print() {
   
-  std::cout << "VkExtensionProperties:" << std::endl;
+  std::cout << "Extension properties:" << std::endl;
   for (int i = 0; i < ExtensionProperties.size(); i++) {
     for (int j = 0; j < ExtensionProperties[i].size(); j++) {
     
@@ -140,18 +139,56 @@ void VulkanInstance::CreateInstance(const std::vector<const char*>& layerNames,
 	     __FILE__, __LINE__);
 }
 
-// void VulkanLayer::FetchLayerExtensions() {
-  
-//   uint32_t extensionCount;
-//   vkEnumerateInstanceExtensionProperties(LayerProperties.layerName,
-// 					 &extensionCount,
-// 					 nullptr);
-//   ExtensionProperties.resize(extensionCount);
-//   vkEnumerateInstanceExtensionProperties(LayerProperties.layerName,
-// 					 &extensionCount,
-// 					 ExtensionProperties.data());
-// }
+void VulkanPhysicalDevices::Fetch(VkInstance instance) {
 
+  uint32_t physicalDeviceCount;
+  vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, nullptr);
+  PhysicalDevices.resize(physicalDeviceCount);
+  vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, PhysicalDevices.data());
+}
+
+void VulkanPhysicalDevices::Print() {
+
+  std::cout << "Number of physical devices: " << PhysicalDevices.size() << std::endl;
+}
+
+void VulkanDeviceExtensionProperties::Fetch(const std::vector<VkPhysicalDevice>& physicalDevices,
+					    const std::vector<const char*>& layerNames) {
+
+  ExtensionProperties.resize(physicalDevices.size());
+  
+  for (int i = 0; i < physicalDevices.size(); i++) {
+
+    ExtensionProperties[i].resize(layerNames.size());
+    
+    for (int j = 0; j < layerNames.size(); j++) {
+      
+      uint32_t propertyCount;
+      vkEnumerateDeviceExtensionProperties(physicalDevices[i],
+					   layerNames[j],
+					   &propertyCount,
+					   nullptr);
+      ExtensionProperties[i][j].resize(propertyCount);
+      vkEnumerateDeviceExtensionProperties(physicalDevices[i],
+					   layerNames[j],
+					   &propertyCount,
+					   ExtensionProperties[i][j].data());
+    }
+  }
+}
+
+void VulkanDeviceExtensionProperties::Print() {
+  
+  std::cout << "Device extension properties:" << std::endl;
+  for (int i = 0; i < ExtensionProperties.size(); i++) {
+    for (int j = 0; j < ExtensionProperties[i].size(); j++) {
+      for (int k = 0; k < ExtensionProperties[i][j].size(); k++) {
+	std::cout << "\t[" << i << "][" << j << "]: "
+		  << ExtensionProperties[i][j][k].extensionName << std::endl;
+      }
+    }
+  }
+}
 
 // void VulkanInstance::GetPhysicalDevices() {
   

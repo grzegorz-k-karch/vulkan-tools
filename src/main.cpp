@@ -10,9 +10,10 @@
 
 // boost
 #include <boost/program_options.hpp>
+
 namespace po = boost::program_options;
 
-void write_properties() {
+void get_properties() {
 
   VulkanLayerProperties vulkanLayerPropeties;
   vulkanLayerPropeties.Fetch();
@@ -30,7 +31,14 @@ void write_properties() {
   VulkanInstance vulkanInstance;
   vulkanInstance.CreateInstance(layerNames, extensionNames);
 
-  // physical device
+  VulkanPhysicalDevices vulkanPhysicalDevices;
+  vulkanPhysicalDevices.Fetch(vulkanInstance.Instance);
+  vulkanPhysicalDevices.Print();
+
+  VulkanDeviceExtensionProperties vulkanDeviceExtensionProperties;
+  vulkanDeviceExtensionProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices,
+					layerNames);
+  vulkanDeviceExtensionProperties.Print();
 
   // device
 
@@ -55,7 +63,7 @@ int main(int argc, char** argv) {
       std::cout << desc << std::endl;
     }
     if (vm.count("get-properties")) {
-      write_properties();
+      get_properties();
     }
   }
   catch(const std::runtime_error &ex) {

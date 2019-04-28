@@ -13,8 +13,6 @@
 #include "XmlUtils.h"
 
 
-int vulkanCall(VkResult result, const char* file, int line);
-
 struct VulkanLayerProperties {
   std::vector<VkLayerProperties> LayerProperties;
   
@@ -46,25 +44,31 @@ struct VulkanInstance {
 		      const std::vector<const char*>& extensionsNames);
 };
 
+struct VulkanPhysicalDevices {
+  std::vector<VkPhysicalDevice> PhysicalDevices;
+  
+  void Fetch(VkInstance instance);
+  void Print();
+  void Write(pt::ptree& pt); // not implemented yet
+};
 
-/* struct VulkanPhysicalDevice { */
+struct VulkanDeviceExtensionProperties {
+  // [num devices][num layers][num extensions per device, per layer]
+  std::vector<std::vector<std::vector<VkExtensionProperties>>> ExtensionProperties;
+  
+  void Fetch(const std::vector<VkPhysicalDevice>& physicalDevices,
+	     const std::vector<const char*>& layerNames);
+  void Print();
+  void Write(pt::ptree& pt); // not implemented yet
+};
+
+
+/* struct VulkanPhysicalDevices { */
 /*   VkPhysicalDevice PhysicalDevice; */
 /*   std::vector<std::vector<VkExtensionProperties>> ExtensionProperties; */
 /* }; */
 
-/* struct VulkanInstanceInfo { */
-
-/*   std::vector<VulkanLayer> Layers; */
-/*   std::vector<const char*> layerNames; */
-/*   std::vector<const char*> extensionNames; */
-
-/*   void GetLayers(); */
-/* }; */
-
-/* void GetLayerNames(const VkInstance instance, */
-/* 		   std::vector<const char*>& layerNames) { */
-
-/* } */
+int vulkanCall(VkResult result, const char* file, int line);
 
 
 /* struct VulkanDeviceInfo { */
