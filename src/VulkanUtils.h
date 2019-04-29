@@ -35,13 +35,25 @@ struct VulkanExtensionProperties {
 
 struct VulkanInstance {
 
-  VkInstance Instance;
-  ~VulkanInstance() {
-    vkDestroyInstance(Instance, NULL);
+  static VulkanInstance& GetInstance() {
+    static VulkanInstance s_Instance;
+    return s_Instance;
   }
+
+  VkInstance Instance;
+  /* ~VulkanInstance() { */
+  /*   std::cout << ">>>destructor" << std::endl; */
+  /*   vkDestroyInstance(Instance, NULL); */
+  /* } */
   
   void CreateInstance(const std::vector<const char*>& layerNames,
 		      const std::vector<const char*>& extensionsNames);
+
+  VulkanInstance(VulkanInstance const&) = delete;
+  void operator=(VulkanInstance const&) = delete;
+  
+private:
+  VulkanInstance() {std::cout << ">>>constructor" << std::endl;}
 };
 
 struct VulkanPhysicalDevices {

@@ -17,7 +17,7 @@ void get_properties() {
 
   VulkanLayerProperties vulkanLayerPropeties;
   vulkanLayerPropeties.Fetch();
-  std::vector<int> selectedLayers = {0};
+  std::vector<int> selectedLayers = {2,4,14};
   std::vector<const char*> layerNames;
   vulkanLayerPropeties.GetLayerNames(layerNames, selectedLayers);
 
@@ -28,24 +28,26 @@ void get_properties() {
   std::vector<const char*> extensionNames;
   vulkanExtensionPropeties.GetExtensionNames(extensionNames);
 
-  VulkanInstance vulkanInstance;
-  vulkanInstance.CreateInstance(layerNames, extensionNames);
+  // VulkanInstance vulkanInstance;  
+  // vulkanInstance.CreateInstance(layerNames, extensionNames);
+  VulkanInstance::GetInstance().CreateInstance(layerNames, extensionNames);
 
-  VulkanPhysicalDevices vulkanPhysicalDevices;
-  vulkanPhysicalDevices.Fetch(vulkanInstance.Instance);
-  vulkanPhysicalDevices.Print();
+  std::cout << "after getinstance" << std::endl;
+  // VulkanPhysicalDevices vulkanPhysicalDevices;
+  // vulkanPhysicalDevices.Fetch(vulkanInstance.Instance);
+  // vulkanPhysicalDevices.Print();
 
-  VulkanDeviceExtensionProperties vulkanDeviceExtensionProperties;
-  vulkanDeviceExtensionProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices,
-					layerNames);
-  vulkanDeviceExtensionProperties.Print();
+  // VulkanDeviceExtensionProperties vulkanDeviceExtensionProperties;
+  // vulkanDeviceExtensionProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices,
+  // 					layerNames);
+  // vulkanDeviceExtensionProperties.Print();
 
   // device
 
-  pt::ptree pt;
-  vulkanLayerPropeties.Write(pt);
-  vulkanExtensionPropeties.Write(pt);
-  XmlWrite(pt, std::string("config.xml"));
+  // pt::ptree pt;
+  // vulkanLayerPropeties.Write(pt);
+  // vulkanExtensionPropeties.Write(pt);
+  // XmlWrite(pt, std::string("config.xml"));
 }
 
 int main(int argc, char** argv) {
