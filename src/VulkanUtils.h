@@ -35,25 +35,27 @@ struct VulkanExtensionProperties {
 
 struct VulkanInstance {
 
-  static VulkanInstance& GetInstance() {
-    static VulkanInstance s_Instance;
-    return s_Instance;
-  }
-
   VkInstance Instance;
-  /* ~VulkanInstance() { */
-  /*   std::cout << ">>>destructor" << std::endl; */
-  /*   vkDestroyInstance(Instance, NULL); */
-  /* } */
+  static int InstanceCounter;
+  
+  ~VulkanInstance() {
+    InstanceCounter--;
+    vkDestroyInstance(Instance, NULL);
+  }
   
   void CreateInstance(const std::vector<const char*>& layerNames,
 		      const std::vector<const char*>& extensionsNames);
 
+  VulkanInstance() {
+    InstanceCounter++;
+    if (InstanceCounter > 1) {
+      std::cerr << "[VulkanInstance][Warning] Created more than 1 VkInstance which\
+ is not good in most cases." << std::endl;
+    }
+  }
+  
   VulkanInstance(VulkanInstance const&) = delete;
   void operator=(VulkanInstance const&) = delete;
-  
-private:
-  VulkanInstance() {std::cout << ">>>constructor" << std::endl;}
 };
 
 struct VulkanPhysicalDevices {

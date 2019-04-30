@@ -111,6 +111,8 @@ GetExtensionNames(std::vector<const char*>& extensionNames) {
   }
 }
 
+int VulkanInstance::InstanceCounter = 0;
+
 void VulkanInstance::CreateInstance(const std::vector<const char*>& layerNames,
 				    const std::vector<const char*>& extensionNames) {
 
