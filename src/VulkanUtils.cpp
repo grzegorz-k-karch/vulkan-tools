@@ -192,41 +192,45 @@ void VulkanDeviceExtensionProperties::Print() {
   }
 }
 
-// void VulkanInstance::GetPhysicalDevices() {
+void VulkanDeviceProperties::Fetch(VkPhysicalDevice physicalDevice) {
   
-//   // Get number of devices
-//   uint32_t physicalDeviceCount;
-//   vkEnumeratePhysicalDevices(Instance, &physicalDeviceCount, nullptr);
+  // Physical device properties
+  vkGetPhysicalDeviceProperties(physicalDevice, &Properties);
 
-//   std::vector<VkPhysicalDevice> physicalDevices;
-//   physicalDevices.resize(physicalDeviceCount);  
-//   vkEnumeratePhysicalDevices(Instance, &physicalDeviceCount,
-//   			     physicalDevices.data());
+  // Memory properties
+  vkGetPhysicalDeviceMemoryProperties(physicalDevice, &MemoryProperties);
 
-//   PhysicalDevices.resize(physicalDeviceCount);
+  // Device layer properties
+  uint32_t propertyCount;
+  vkEnumerateDeviceLayerProperties(physicalDevice, &propertyCount, nullptr);
+  LayerProperties.resize(propertyCount);
+  vkEnumerateDeviceLayerProperties(physicalDevice, &propertyCount, LayerProperties.data());
 
-//   for (int i = 0; i < physicalDeviceCount; i++) {
+  // Queue family properties
+  vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &propertyCount, nullptr);
+  QueueFamilyProperties.resize(propertyCount);
+  vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &propertyCount, QueueFamilyProperties.data());
+}
 
-//     const VkPhysicalDevice &physicalDevice = physicalDevices[i];
-//     PhysicalDevices[i].PhysicalDevice = physicalDevice;
-    
-//     PhysicalDevices[i].ExtensionProperties.resize(InstanceInfo.Layers.size());    
-//     for (int j = 0; j < InstanceInfo.Layers.size(); j++) {
-//       uint32_t deviceExtensionCount;
-//       vkEnumerateDeviceExtensionProperties(physicalDevice,
-//   					   InstanceInfo.Layers[j].LayerProperties.layerName,
-//   					   &deviceExtensionCount,
-//   					   nullptr);
-      
-//       PhysicalDevices[i].ExtensionProperties[j].resize(deviceExtensionCount);
-//       vkEnumerateDeviceExtensionProperties(physicalDevice,
-//   					   InstanceInfo.Layers[j].LayerProperties.layerName,
-//   					   &deviceExtensionCount,
-//   					   PhysicalDevices[i].ExtensionProperties[j].data());
+void VulkanDeviceProperties::Print() {
 
-//     }
-//   }
-// }
+  std::cout << "Device name:" << std::endl;
+  std::cout << "\t" << Properties.deviceName << std::endl;
+  std::cout << "API version:" << std::endl;
+  std::cout << "\t" << Properties.apiVersion << std::endl;
+  std::cout << "Driver version:" << std::endl;
+  std::cout << "\t" << Properties.driverVersion << std::endl;
+  std::cout << "Vendor ID:" << std::endl;
+  std::cout << "\t" << Properties.vendorID << std::endl;
+  std::cout << "Device ID:" << std::endl;
+  std::cout << "\t" << Properties.deviceID << std::endl;
+  
+  std::cout << "Device layer properties:" << std::endl;
+  for (int i = 0; i < LayerProperties.size(); i++) {
+    std::cout << "\t[" << i << "]: " << LayerProperties[i].layerName << std::endl;
+  }
+
+}
 
 // void VulkanDeviceInfo::GetPhysicalDeviceInfo(VkPhysicalDevice physicalDevice) {
   

@@ -76,23 +76,18 @@ struct VulkanDeviceExtensionProperties {
   void Write(pt::ptree& pt); // not implemented yet
 };
 
+struct VulkanDeviceProperties {
 
-/* struct VulkanPhysicalDevices { */
-/*   VkPhysicalDevice PhysicalDevice; */
-/*   std::vector<std::vector<VkExtensionProperties>> ExtensionProperties; */
-/* }; */
+  VkPhysicalDeviceProperties Properties;
+  VkPhysicalDeviceMemoryProperties MemoryProperties;
+  std::vector<VkLayerProperties> LayerProperties;
+  std::vector<VkQueueFamilyProperties> QueueFamilyProperties;
+
+  void Fetch(VkPhysicalDevice physicalDevice);
+  void Print();
+};
 
 int vulkanCall(VkResult result, const char* file, int line);
-
-
-/* struct VulkanDeviceInfo { */
-
-/*   std::vector<VkQueueFamilyProperties> QueueFamilyProperties; */
-/*   VkPhysicalDeviceMemoryProperties PhysicalDeviceMemoryProperties; */
-/*   VkPhysicalDeviceProperties PhysicalDeviceProperties; */
-
-/*   void GetPhysicalDeviceInfo(VkPhysicalDevice physicalDevice); */
-/* }; */
 
 
 #endif // VULKAN_INFO_H_

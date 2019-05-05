@@ -17,7 +17,8 @@ void get_properties() {
 
   VulkanLayerProperties vulkanLayerPropeties;
   vulkanLayerPropeties.Fetch();
-  std::vector<int> selectedLayers = {2,4,14};
+  vulkanLayerPropeties.Print();
+  std::vector<int> selectedLayers = {};
   std::vector<const char*> layerNames;
   vulkanLayerPropeties.GetLayerNames(layerNames, selectedLayers);
 
@@ -25,6 +26,7 @@ void get_properties() {
   // add nullptr to get default extensions
   // layerNames.push_back(nullptr);
   vulkanExtensionPropeties.Fetch(layerNames);
+  vulkanExtensionPropeties.Print();
   std::vector<const char*> extensionNames;
   vulkanExtensionPropeties.GetExtensionNames(extensionNames);
 
@@ -41,6 +43,9 @@ void get_properties() {
   vulkanDeviceExtensionProperties.Print();
 
   // device
+  VulkanDeviceProperties vulkanDeviceProperties;
+  vulkanDeviceProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices[0]);
+  vulkanDeviceProperties.Print();
 
   pt::ptree pt;
   vulkanLayerPropeties.Write(pt);
