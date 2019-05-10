@@ -13,7 +13,7 @@
 #include "XmlUtils.h"
 
 
-struct VulkanLayerProperties {
+struct VulkanInstanceLayerProperties {
   std::vector<VkLayerProperties> LayerProperties;
   
   void Fetch();
@@ -24,7 +24,7 @@ struct VulkanLayerProperties {
 		     const std::vector<int>& selectedLayers);
 };
 
-struct VulkanExtensionProperties {
+struct VulkanInstanceExtensionProperties {
   std::vector<std::vector<VkExtensionProperties>> ExtensionProperties;
   
   void Fetch(const std::vector<const char*>& layerNames);
