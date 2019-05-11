@@ -20,14 +20,13 @@ struct VulkanInstanceLayerProperties {
   void Print();
   void Write(pt::ptree& pt);
   void GetLayerNames(std::vector<const char*>& layerNames);
-  void GetLayerNames(std::vector<const char*>& layerNames,
-		     const std::vector<int>& selectedLayers);
 };
 
 struct VulkanInstanceExtensionProperties {
   std::vector<std::vector<VkExtensionProperties>> ExtensionProperties;
   
-  void Fetch(const std::vector<const char*>& layerNames);
+  void Fetch(const std::vector<const char*>& layerNames,
+	     bool getDefaultExtensions=true);
   void Print();
   void Write(pt::ptree& pt);
   void GetExtensionNames(std::vector<const char*>& extensionNames);
@@ -61,7 +60,7 @@ struct VulkanInstance {
 struct VulkanPhysicalDevices {
   std::vector<VkPhysicalDevice> PhysicalDevices;
   
-  void Fetch(VkInstance instance);
+  void Fetch(const VulkanInstance& instance);
   void Print();
   void Write(pt::ptree& pt); // not implemented yet
 };

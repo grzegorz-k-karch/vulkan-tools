@@ -18,38 +18,35 @@ void get_properties() {
   VulkanInstanceLayerProperties vulkanInstanceLayerProperties;
   vulkanInstanceLayerProperties.Fetch();
   vulkanInstanceLayerProperties.Print();
-  std::vector<int> selectedLayers = {};
-  std::vector<const char*> layerNames;
-  vulkanInstanceLayerProperties.GetLayerNames(layerNames, selectedLayers);
+  std::vector<const char*> instanceLayerNames;
+  vulkanInstanceLayerProperties.GetLayerNames(instanceLayerNames);
 
-  VulkanInstanceExtensionProperties vulkanExtensionPropeties;
-  // add nullptr to get default extensions
-  layerNames.push_back(nullptr);
-  vulkanExtensionPropeties.Fetch(layerNames);
-  vulkanExtensionPropeties.Print();
-  // std::vector<const char*> extensionNames;
-  // vulkanExtensionPropeties.GetExtensionNames(extensionNames);
+  VulkanInstanceExtensionProperties vulkanInstanceExtensionProperties;
+  vulkanInstanceExtensionProperties.Fetch(instanceLayerNames, true);
+  vulkanInstanceExtensionProperties.Print();
+  std::vector<const char*> instanceExtensionNames;
+  vulkanInstanceExtensionProperties.GetExtensionNames(instanceExtensionNames);
 
-  // VulkanInstance vulkanInstance;  
-  // vulkanInstance.CreateInstance(layerNames, extensionNames);
+  VulkanInstance vulkanInstance;  
+  vulkanInstance.CreateInstance(instanceLayerNames, instanceExtensionNames);
 
-  // VulkanPhysicalDevices vulkanPhysicalDevices;
-  // vulkanPhysicalDevices.Fetch(vulkanInstance.Instance);
-  // vulkanPhysicalDevices.Print();
+  VulkanPhysicalDevices vulkanPhysicalDevices;
+  vulkanPhysicalDevices.Fetch(vulkanInstance);
+  vulkanPhysicalDevices.Print();
 
-  // VulkanDeviceExtensionProperties vulkanDeviceExtensionProperties;
-  // vulkanDeviceExtensionProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices,
-  // 					layerNames);
-  // vulkanDeviceExtensionProperties.Print();
+  VulkanDeviceExtensionProperties vulkanDeviceExtensionProperties;
+  vulkanDeviceExtensionProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices,
+  					instanceLayerNames);
+  vulkanDeviceExtensionProperties.Print();
 
-  // // device
-  // VulkanDeviceProperties vulkanDeviceProperties;
-  // vulkanDeviceProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices[0]);
-  // vulkanDeviceProperties.Print();
+  // device
+  VulkanDeviceProperties vulkanDeviceProperties;
+  vulkanDeviceProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices[0]);
+  vulkanDeviceProperties.Print();
 
   // pt::ptree pt;
   // vulkanInstanceLayerProperties.Write(pt);
-  // vulkanExtensionPropeties.Write(pt);
+  // vulkanInstanceExtensionProperties.Write(pt);
   // XmlWrite(pt, std::string("config.xml"));
 }
 
