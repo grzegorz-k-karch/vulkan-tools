@@ -31,7 +31,7 @@ void get_properties() {
   vulkanInstance.CreateInstance(instanceLayerNames, instanceExtensionNames);
 
   VulkanPhysicalDevices vulkanPhysicalDevices;
-  vulkanPhysicalDevices.Fetch(vulkanInstance);
+  vulkanPhysicalDevices.Fetch(vulkanInstance.Instance);
   vulkanPhysicalDevices.Print();
 
   VulkanDeviceExtensionProperties vulkanDeviceExtensionProperties;
@@ -39,10 +39,14 @@ void get_properties() {
   					instanceLayerNames);
   vulkanDeviceExtensionProperties.Print();
 
-  // device
   VulkanDeviceProperties vulkanDeviceProperties;
   vulkanDeviceProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices[0]);
   vulkanDeviceProperties.Print();
+
+  std::cout << "sizeof instance: " << sizeof(vulkanInstance.Instance) << std::endl;
+
+  // VulkanDevice vulkanDevice;
+  // vulkanDevice.CreateDevice();
 
   // pt::ptree pt;
   // vulkanInstanceLayerProperties.Write(pt);

@@ -14,6 +14,7 @@
 
 
 struct VulkanInstanceLayerProperties {
+
   std::vector<VkLayerProperties> LayerProperties;
   
   void Fetch();
@@ -22,7 +23,9 @@ struct VulkanInstanceLayerProperties {
   void GetLayerNames(std::vector<const char*>& layerNames);
 };
 
+
 struct VulkanInstanceExtensionProperties {
+
   std::vector<std::vector<VkExtensionProperties>> ExtensionProperties;
   
   void Fetch(const std::vector<const char*>& layerNames,
@@ -31,6 +34,7 @@ struct VulkanInstanceExtensionProperties {
   void Write(pt::ptree& pt);
   void GetExtensionNames(std::vector<const char*>& extensionNames);
 };
+
 
 struct VulkanInstance {
 
@@ -57,15 +61,19 @@ struct VulkanInstance {
   void operator=(VulkanInstance const&) = delete;
 };
 
+
 struct VulkanPhysicalDevices {
+
   std::vector<VkPhysicalDevice> PhysicalDevices;
   
-  void Fetch(const VulkanInstance& instance);
+  void Fetch(const VkInstance instance);
   void Print();
   void Write(pt::ptree& pt); // not implemented yet
 };
 
+
 struct VulkanDeviceExtensionProperties {
+
   // [num devices][num layers][num extensions per device, per layer]
   std::vector<std::vector<std::vector<VkExtensionProperties>>> ExtensionProperties;
   
@@ -74,6 +82,7 @@ struct VulkanDeviceExtensionProperties {
   void Print();
   void Write(pt::ptree& pt); // not implemented yet
 };
+
 
 struct VulkanDeviceProperties {
 
@@ -84,6 +93,16 @@ struct VulkanDeviceProperties {
 
   void Fetch(VkPhysicalDevice physicalDevice);
   void Print();
+};
+
+struct VulkanDevice {
+
+  VkDevice Device;
+
+  void CreateDevice(VkPhysicalDevice physicalDevice,
+		    const std::vector<const char*>& layerNames,
+		    const std::vector<const char*>& extensionNames,
+		    const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos);
 };
 
 int vulkanCall(VkResult result, const char* file, int line);
