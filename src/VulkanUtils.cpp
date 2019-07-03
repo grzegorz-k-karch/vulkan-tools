@@ -215,6 +215,20 @@ void VulkanDeviceExtensionProperties::Print()
   }
 }
 
+void VulkanDeviceExtensionProperties::GetExtensionNames(uint32_t physicalDeviceId,
+							std::vector<const char*>& extensionNames)
+{
+  for (auto &layerProps : ExtensionProperties[physicalDeviceId]) {    
+    for (auto &prop : layerProps) {
+      
+      char *name = new char[VK_MAX_EXTENSION_NAME_SIZE];
+      strncpy(name, prop.extensionName, sizeof(prop.extensionName));
+      extensionNames.push_back(name);
+      std::cout << "||||||" << name << std::endl;
+    }
+  }
+}
+
 //----------------------------------------------------------------------------
 // VulkanPhysicalDeviceProperties
 void VulkanPhysicalDeviceProperties::Fetch(VkPhysicalDevice physicalDevice)
@@ -312,7 +326,7 @@ void VulkanPhysicalDeviceQueueFamilyProperties::Print()
   };
 
   std::cout << "======================================================================" << std::endl;
-  std::cout << "VulkanPhysicalDeviceQueueFamilyProperties" << std::endl;
+  std::cout << "VulkanPhysicalDeviceQueueFamilyProperties [" << Properties.size() << "]" << std::endl;
 
   for (auto &props : Properties) {
     std::cout << "\tqueueCount: " << props.queueCount << " "
@@ -326,63 +340,28 @@ void VulkanPhysicalDeviceQueueFamilyProperties::Print()
   std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
 }
 
-
-  // uint32_t propertyCount;
-
-  // // Device layer properties
-  // vkEnumerateDeviceLayerProperties(physicalDevice,
-  // 				   &propertyCount,
-  // 				   nullptr);
-  // LayerProperties.resize(propertyCount);
-  // vkEnumerateDeviceLayerProperties(physicalDevice,
-  // 				   &propertyCount,
-  // 				   LayerProperties.data());
-
-  // // Queue family properties
-  // vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice,
-  // 					   &propertyCount,
-  // 					   nullptr);
-  // QueueFamilyProperties.resize(propertyCount);
-  // vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice,
-  // 					   &propertyCount,
-  // 					   QueueFamilyProperties.data());
-
-  // std::cout << "Device layer properties:" << std::endl;
-  // for (int i = 0; i < LayerProperties.size(); i++) {
-  //   std::cout << "\t[" << i << "]: " << LayerProperties[i].layerName << std::endl;
-  // }
-
-  // std::cout << "Queue family properties:" << std::endl;
-  // for (int i = 0; i < QueueFamilyProperties.size(); i++) {
-  //   std::cout << "\t[" << i << "] queueFlags: " << QueueFamilyProperties[i].queueFlags << std::endl;
-  //   std::cout << "\t[" << i << "] queueCount: " << QueueFamilyProperties[i].queueCount << std::endl;    
-  // }
-
 //----------------------------------------------------------------------------
 // VulkanDevice
 void VulkanDevice::CreateDevice(VkPhysicalDevice physicalDevice,
-				const std::vector<const char*>& layerNames,
-				const std::vector<const char*>& extensionNames,
-				const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos)
+				const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos,
+				const std::vector<const char*>& extensionNames)
 {
-
-  
   VkDeviceCreateInfo deviceCreateInfo = {
     VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,           // sType
     nullptr,                                        // pNext
     0,                                              // flags
     static_cast<uint32_t>(queueCreateInfos.size()), // queueCreateInfoCount
     queueCreateInfos.data(),                        // pQueueCreateInfos
-    static_cast<uint32_t>(layerNames.size()),       // enabledLayerCount
-    layerNames.data(),                              // ppEnabledLayerNames
+    0,                                              // enabledLayerCount (DEPRECATED)
+    nullptr,                                        // ppEnabledLayerNames (DEPRECATED)
     static_cast<uint32_t>(extensionNames.size()),   // enabledExtensionCount
     extensionNames.data(),                          // ppEnabledExtensionNames
     nullptr                                         // pEnabledFeatures
   };
 
-  vulkanCall(vkCreateDevice(physicalDevice,
-			    &deviceCreateInfo,
-			    nullptr,
-			    &Device),
+  vulkanCall(vkCreateDevice(physicalDevice,     // VkPhysicalDevice             physicalDevice
+			    &deviceCreateInfo,  // const VkDeviceCreateInfo*    pCreateInfo
+			    nullptr,            // const VkAllocationCallbacks* pAllocator
+			    &Device),           // VkDevice*                    pDevice
 	     __FILE__, __LINE__);
 }

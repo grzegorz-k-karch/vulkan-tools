@@ -81,6 +81,8 @@ struct VulkanDeviceExtensionProperties {
 	     const std::vector<const char*>& layerNames);
   void Print();
   void Write(pt::ptree& pt); // not implemented yet
+  void GetExtensionNames(uint32_t physicalDeviceId,
+			 std::vector<const char*>& extensionNames);
 };
 
 
@@ -113,9 +115,8 @@ struct VulkanDevice {
   VkDevice Device;
 
   void CreateDevice(VkPhysicalDevice physicalDevice,
-		    const std::vector<const char*>& layerNames,
-		    const std::vector<const char*>& extensionNames,
-		    const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos);
+		    const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos,
+		    const std::vector<const char*>& extensionNames);
 };
 
 int vulkanCall(VkResult result, const char* file, int line);
