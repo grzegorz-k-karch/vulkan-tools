@@ -84,13 +84,26 @@ struct VulkanDeviceExtensionProperties {
 };
 
 
-struct VulkanDeviceProperties {
+struct VulkanPhysicalDeviceProperties {
 
   VkPhysicalDeviceProperties Properties;
-  VkPhysicalDeviceMemoryProperties MemoryProperties;
-  std::vector<VkLayerProperties> LayerProperties;
-  std::vector<VkQueueFamilyProperties> QueueFamilyProperties;
 
+  void Fetch(VkPhysicalDevice physicalDevice);
+  void Print();
+};
+
+struct VulkanPhysicalDeviceMemoryProperties {
+
+  VkPhysicalDeviceMemoryProperties Properties;
+  
+  void Fetch(VkPhysicalDevice physicalDevice);
+  void Print();
+};
+
+struct VulkanPhysicalDeviceQueueFamilyProperties {
+
+  std::vector<VkQueueFamilyProperties> Properties;
+  
   void Fetch(VkPhysicalDevice physicalDevice);
   void Print();
 };

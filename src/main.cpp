@@ -5,10 +5,8 @@
 #include "VulkanUtils.h"
 #include "XmlUtils.h"
 
-// std
 #include <iostream>
 
-// boost
 #include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
@@ -17,36 +15,53 @@ void get_properties() {
 
   VulkanInstanceLayerProperties vulkanInstanceLayerProperties;
   vulkanInstanceLayerProperties.Fetch();
-  vulkanInstanceLayerProperties.Print();
+  // vulkanInstanceLayerProperties.Print();
   std::vector<const char*> instanceLayerNames;
   vulkanInstanceLayerProperties.GetLayerNames(instanceLayerNames);
 
   VulkanInstanceExtensionProperties vulkanInstanceExtensionProperties;
   vulkanInstanceExtensionProperties.Fetch(instanceLayerNames, true);
-  vulkanInstanceExtensionProperties.Print();
+  // vulkanInstanceExtensionProperties.Print();
   std::vector<const char*> instanceExtensionNames;
   vulkanInstanceExtensionProperties.GetExtensionNames(instanceExtensionNames);
 
+  // TODO: choose extensions here
+  
   VulkanInstance vulkanInstance;  
   vulkanInstance.CreateInstance(instanceLayerNames, instanceExtensionNames);
 
   VulkanPhysicalDevices vulkanPhysicalDevices;
   vulkanPhysicalDevices.Fetch(vulkanInstance.Instance);
-  vulkanPhysicalDevices.Print();
+  // vulkanPhysicalDevices.Print();
 
   VulkanDeviceExtensionProperties vulkanDeviceExtensionProperties;
   vulkanDeviceExtensionProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices,
   					instanceLayerNames);
-  vulkanDeviceExtensionProperties.Print();
+  // vulkanDeviceExtensionProperties.Print();
 
-  VulkanDeviceProperties vulkanDeviceProperties;
-  vulkanDeviceProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices[0]);
-  vulkanDeviceProperties.Print();
+  VulkanPhysicalDeviceProperties vulkanPhysicalDeviceProperties;
+  // TODO: choose device
+  vulkanPhysicalDeviceProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices[0]);
+  vulkanPhysicalDeviceProperties.Print();
 
-  std::cout << "sizeof instance: " << sizeof(vulkanInstance.Instance) << std::endl;
+  VulkanPhysicalDeviceMemoryProperties vulkanPhysicalDeviceMemoryProperties;
+  // TODO: choose device
+  vulkanPhysicalDeviceMemoryProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices[0]);
+  vulkanPhysicalDeviceMemoryProperties.Print();
 
-  // VulkanDevice vulkanDevice;
-  // vulkanDevice.CreateDevice();
+  VulkanPhysicalDeviceQueueFamilyProperties vulkanPhysicalDeviceQueueFamilyProperties;
+  // TODO: choose device
+  vulkanPhysicalDeviceQueueFamilyProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices[0]);
+  vulkanPhysicalDeviceQueueFamilyProperties.Print();
+
+  // TODO: choose queue families here
+  
+
+  VulkanDevice vulkanDevice;
+  // vulkanDevice.CreateDevice(vulkanPhysicalDevices[0],
+  // 			    instanceLayerNames,
+  // 			    instanceExtensionNames,
+  // 			    );
 
   // pt::ptree pt;
   // vulkanInstanceLayerProperties.Write(pt);

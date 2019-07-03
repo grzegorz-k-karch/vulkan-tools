@@ -1,13 +1,14 @@
+// project
+#include "XmlUtils.h"
+#include "VulkanUtils.h"
+
 // std
 #include <iostream>
 #include <unordered_set>
 #include <algorithm>
 #include <numeric>
 #include <cstring>
-
-// project
-#include "XmlUtils.h"
-#include "VulkanUtils.h"
+#include <map>
 
 int vulkanCall(VkResult result, const char* file, int line)
 {
@@ -215,37 +216,13 @@ void VulkanDeviceExtensionProperties::Print()
 }
 
 //----------------------------------------------------------------------------
-// VulkanDeviceProperties
-void VulkanDeviceProperties::Fetch(VkPhysicalDevice physicalDevice)
+// VulkanPhysicalDeviceProperties
+void VulkanPhysicalDeviceProperties::Fetch(VkPhysicalDevice physicalDevice)
 {
-  // Physical device properties
   vkGetPhysicalDeviceProperties(physicalDevice, &Properties);
-
-  // Memory properties
-  vkGetPhysicalDeviceMemoryProperties(physicalDevice, &MemoryProperties);
-
-  uint32_t propertyCount;
-
-  // Device layer properties
-  vkEnumerateDeviceLayerProperties(physicalDevice,
-				   &propertyCount,
-				   nullptr);
-  LayerProperties.resize(propertyCount);
-  vkEnumerateDeviceLayerProperties(physicalDevice,
-				   &propertyCount,
-				   LayerProperties.data());
-
-  // Queue family properties
-  vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice,
-					   &propertyCount,
-					   nullptr);
-  QueueFamilyProperties.resize(propertyCount);
-  vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice,
-					   &propertyCount,
-					   QueueFamilyProperties.data());
 }
 
-void VulkanDeviceProperties::Print()
+void VulkanPhysicalDeviceProperties::Print()
 {
   std::cout << "Device name:" << std::endl
 	    << "\t" << Properties.deviceName << std::endl
@@ -258,17 +235,128 @@ void VulkanDeviceProperties::Print()
 	    << "Device ID:" << std::endl
 	    << "\t" << Properties.deviceID << std::endl;
   
-  std::cout << "Device layer properties:" << std::endl;
-  for (int i = 0; i < LayerProperties.size(); i++) {
-    std::cout << "\t[" << i << "]: " << LayerProperties[i].layerName << std::endl;
-  }
-
-  std::cout << "Queue family properties:" << std::endl;
-  for (int i = 0; i < QueueFamilyProperties.size(); i++) {
-    std::cout << "\t[" << i << "] queueFlags: " << QueueFamilyProperties[i].queueFlags << std::endl;
-    std::cout << "\t[" << i << "] queueCount: " << QueueFamilyProperties[i].queueCount << std::endl;    
-  }
 }
+
+//----------------------------------------------------------------------------
+// VulkanPhysicalDeviceMemoryProperties
+void VulkanPhysicalDeviceMemoryProperties::Fetch(VkPhysicalDevice physicalDevice)
+{
+  vkGetPhysicalDeviceMemoryProperties(physicalDevice, &Properties);
+}
+
+
+void VulkanPhysicalDeviceMemoryProperties::Print()
+{
+  std::map<int, std::string> memoryPropertyFlagNames = {    
+    {0x00000001, "VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT"},
+    {0x00000002, "VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT"},
+    {0x0000004, "VK_MEMORY_PROPERTY_HOST_COHERENT_BIT"},
+    {0x00000008, "VK_MEMORY_PROPERTY_HOST_CACHED_BIT"},
+    {0x00000010, "VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT"},
+    {0x00000020, "VK_MEMORY_PROPERTY_PROTECTED_BIT"},
+    {0x7FFFFFFF, "VK_MEMORY_PROPERTY_FLAG_BITS_MAX_ENUM"}
+  };
+  std::map<int, std::string> emoryHeapFlagNames = {
+    {0x00000001, "VK_MEMORY_HEAP_DEVICE_LOCAL_BIT"},
+    {0x00000002, "VK_MEMORY_HEAP_MULTI_INSTANCE_BIT"},
+    {0x7FFFFFFF, "VK_MEMORY_HEAP_FLAG_BITS_MAX_ENUM"} 
+  };
+
+  std::cout << "======================================================================" << std::endl;
+  std::cout << "VkPhysicalDeviceMemoryProperties" << std::endl;
+  std::cout << "\tmemoryTypes (count: " << Properties.memoryTypeCount << ")" << std::endl;
+  
+  for (int i = 0; i < Properties.memoryTypeCount; i++) {
+    
+    std::cout << "\t\theapIndex: " << Properties.memoryTypes[i].heapIndex << " "
+	      << "propertyFlags: " << Properties.memoryTypes[i].propertyFlags << std::endl;
+    for (int j = 0; j < 32; j++) {
+      if ((1 << j) & Properties.memoryTypes[i].propertyFlags) {
+	std::cout << "\t\t\t" << memoryPropertyFlagNames[1<<j] << std::endl;
+      }
+    }
+  }
+  std::cout << "\tmemoryHeaps (count: " << Properties.memoryHeapCount << ")" << std::endl;
+  for (int i = 0; i < Properties.memoryHeapCount; i++) {
+    
+    std::cout << "\t\theap size: " << Properties.memoryHeaps[i].size << " "
+	      << "flags: " << Properties.memoryHeaps[i].flags << std::endl;
+    for (int j = 0; j < 32; j++) {
+      if ((1 << j) & Properties.memoryHeaps[i].flags) {
+	std::cout << "\t\t\t" << memoryPropertyFlagNames[1<<j] << std::endl;
+      }
+    }
+  }
+  std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+}
+
+//----------------------------------------------------------------------------
+// VulkanPhysicalDeviceQueueFamilyProperties
+void VulkanPhysicalDeviceQueueFamilyProperties::Fetch(VkPhysicalDevice physicalDevice)
+{
+  uint32_t propertyCount;
+  vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &propertyCount, NULL);
+  Properties.resize(propertyCount);
+  vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &propertyCount, Properties.data());
+}
+
+void VulkanPhysicalDeviceQueueFamilyProperties::Print()
+{
+  std::map<int, std::string> queueFlagNames = {
+    {0x00000001, "VK_QUEUE_GRAPHICS_BIT"},
+    {0x00000002, "VK_QUEUE_COMPUTE_BIT"},
+    {0x00000004, "VK_QUEUE_TRANSFER_BIT"},
+    {0x00000008, "VK_QUEUE_SPARSE_BINDING_BIT"},
+    {0x00000010, "VK_QUEUE_PROTECTED_BIT"},
+    {0x7FFFFFFF, "VK_QUEUE_FLAG_BITS_MAX_ENUM"}
+  };
+
+  std::cout << "======================================================================" << std::endl;
+  std::cout << "VulkanPhysicalDeviceQueueFamilyProperties" << std::endl;
+
+  for (auto &props : Properties) {
+    std::cout << "\tqueueCount: " << props.queueCount << " "
+	      << "queueFlags: " << props.queueFlags << std::endl;
+    for (int j = 0; j < 32; j++) {
+      if ((1 << j) & props.queueFlags) {
+	std::cout << "\t\t" << queueFlagNames[1<<j] << std::endl;
+      }
+    }
+  }
+  std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+}
+
+
+  // uint32_t propertyCount;
+
+  // // Device layer properties
+  // vkEnumerateDeviceLayerProperties(physicalDevice,
+  // 				   &propertyCount,
+  // 				   nullptr);
+  // LayerProperties.resize(propertyCount);
+  // vkEnumerateDeviceLayerProperties(physicalDevice,
+  // 				   &propertyCount,
+  // 				   LayerProperties.data());
+
+  // // Queue family properties
+  // vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice,
+  // 					   &propertyCount,
+  // 					   nullptr);
+  // QueueFamilyProperties.resize(propertyCount);
+  // vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice,
+  // 					   &propertyCount,
+  // 					   QueueFamilyProperties.data());
+
+  // std::cout << "Device layer properties:" << std::endl;
+  // for (int i = 0; i < LayerProperties.size(); i++) {
+  //   std::cout << "\t[" << i << "]: " << LayerProperties[i].layerName << std::endl;
+  // }
+
+  // std::cout << "Queue family properties:" << std::endl;
+  // for (int i = 0; i < QueueFamilyProperties.size(); i++) {
+  //   std::cout << "\t[" << i << "] queueFlags: " << QueueFamilyProperties[i].queueFlags << std::endl;
+  //   std::cout << "\t[" << i << "] queueCount: " << QueueFamilyProperties[i].queueCount << std::endl;    
+  // }
 
 //----------------------------------------------------------------------------
 // VulkanDevice
@@ -277,6 +365,8 @@ void VulkanDevice::CreateDevice(VkPhysicalDevice physicalDevice,
 				const std::vector<const char*>& extensionNames,
 				const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos)
 {
+
+  
   VkDeviceCreateInfo deviceCreateInfo = {
     VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,           // sType
     nullptr,                                        // pNext
