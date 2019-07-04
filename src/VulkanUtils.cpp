@@ -10,7 +10,7 @@
 #include <cstring>
 #include <map>
 
-int vulkanCall(VkResult result, const char* file, int line)
+VkResult vulkanCall(VkResult result, const char* file, int line)
 {
   if (result != VK_SUCCESS) {
     std::cerr << file << ":" << line
@@ -19,6 +19,7 @@ int vulkanCall(VkResult result, const char* file, int line)
 	      << "."
 	      << std::endl;
   }
+  return result;
 }
 
 //----------------------------------------------------------------------------
@@ -359,9 +360,12 @@ void VulkanDevice::CreateDevice(VkPhysicalDevice physicalDevice,
     nullptr                                         // pEnabledFeatures
   };
 
-  vulkanCall(vkCreateDevice(physicalDevice,     // VkPhysicalDevice             physicalDevice
-			    &deviceCreateInfo,  // const VkDeviceCreateInfo*    pCreateInfo
-			    nullptr,            // const VkAllocationCallbacks* pAllocator
-			    &Device),           // VkDevice*                    pDevice
-	     __FILE__, __LINE__);
+  VkResult result = vulkanCall(vkCreateDevice(physicalDevice,     // physicalDevice
+					      &deviceCreateInfo,  // pCreateInfo
+					      nullptr,            // pAllocator
+					      &Device),           // pDevice
+			       __FILE__, __LINE__);
+  if (result == VK_SUCCESS) {
+    DeviceCreated = true;
+  }
 }

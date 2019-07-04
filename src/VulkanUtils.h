@@ -41,14 +41,6 @@ struct VulkanInstance {
   VkInstance Instance;
   static int InstanceCounter;
   
-  ~VulkanInstance() {
-    InstanceCounter--;
-    vkDestroyInstance(Instance, NULL);
-  }
-  
-  void CreateInstance(const std::vector<const char*>& layerNames,
-		      const std::vector<const char*>& extensionsNames);
-
   VulkanInstance() {
     InstanceCounter++;
     if (InstanceCounter > 1) {
@@ -56,6 +48,13 @@ struct VulkanInstance {
  is not good in most cases." << std::endl;
     }
   }
+  ~VulkanInstance() {
+    InstanceCounter--;
+    vkDestroyInstance(Instance, NULL);
+  }
+  
+  void CreateInstance(const std::vector<const char*>& layerNames,
+		      const std::vector<const char*>& extensionsNames);
   
   VulkanInstance(VulkanInstance const&) = delete;
   void operator=(VulkanInstance const&) = delete;
@@ -113,13 +112,21 @@ struct VulkanPhysicalDeviceQueueFamilyProperties {
 struct VulkanDevice {
 
   VkDevice Device;
-
+  bool DeviceCreated;
+  
+  VulkanDevice() : DeviceCreated(false) {}
+  ~VulkanDevice() {
+    if (DeviceCreated) {
+      vkDestroyDevice(Device, nullptr);
+    }
+  }
   void CreateDevice(VkPhysicalDevice physicalDevice,
 		    const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos,
 		    const std::vector<const char*>& extensionNames);
+
 };
 
-int vulkanCall(VkResult result, const char* file, int line);
+VkResult vulkanCall(VkResult result, const char* file, int line);
 
 
 #endif // VULKAN_INFO_H_

@@ -8,8 +8,36 @@
 #include <iostream>
 
 #include <boost/program_options.hpp>
-
 namespace po = boost::program_options;
+
+// xcb
+#include <xcb/xcb.h>
+#include <xcb/xproto.h>
+
+// loosely based on https://en.wikipedia.org/wiki/XCB
+// and https://www.codeproject.com/Articles/1089819/An-Introduction-to-XCB-Programming
+void createWindow(xcb_window_t *window, xcb_connection_t **connection) {
+
+  *connection = xcb_connect(NULL, NULL);
+  if (xcb_connection_has_error(*connection)) {
+    std::cerr << "XCB connection failed. Exiting";
+  }
+
+  /* Obtain setup info and access the screen */
+  const xcb_setup_t *setup = xcb_get_setup(*connection);
+  xcb_screen_t *screen = xcb_setup_roots_iterator(setup).data;;
+
+  /* Create window */
+  *window = xcb_generate_id(*connection);
+  uint32_t prop_name = XCB_CW_BACK_PIXEL;
+  uint32_t prop_value = screen->white_pixel;
+
+  xcb_void_cookie_t window_cookie = xcb_create_window(*connection, screen->root_depth,
+						      *window, screen->root, 0, 0, 100, 100, 1,
+						      XCB_WINDOW_CLASS_INPUT_OUTPUT,
+						      screen->root_visual, prop_name, &prop_value);
+
+}
 
 void get_properties() {
 
@@ -36,7 +64,8 @@ void get_properties() {
   					instanceLayerNames);
   // TODO use selected extensions
   std::vector<const char*> deviceExtensionNames;
-  vulkanDeviceExtensionProperties.GetExtensionNames(0, // physicalDeviceId
+  uint32_t physicalDeviceId = 0;
+  vulkanDeviceExtensionProperties.GetExtensionNames(physicalDeviceId, 
 						    deviceExtensionNames);  
 
   VulkanPhysicalDeviceProperties vulkanPhysicalDeviceProperties;
@@ -55,12 +84,12 @@ void get_properties() {
   float queuePriority = 1.0f;
   std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfos = {
     {
-      VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-      nullptr,
-      0,
-      0,
-      1,
-      &queuePriority
+      VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
+      nullptr,                                    // pNext
+      0,                                          // flags
+      0,                                          // qeueueFamilyIndex
+      1,                                          // queueCount
+      &queuePriority                              // pQueuePriorities
     }
   };
 
@@ -69,10 +98,30 @@ void get_properties() {
 			    deviceQueueCreateInfos,
 			    deviceExtensionNames);
 
-  // pt::ptree pt;
-  // vulkanInstanceLayerProperties.Write(pt);
-  // vulkanInstanceExtensionProperties.Write(pt);
-  // XmlWrite(pt, std::string("config.xml"));
+  VkQueue vulkanQueue;
+  vkGetDeviceQueue(vulkanDevice.Device,
+		   0,
+		   0,
+		   &vulkanQueue);
+
+  xcb_window_t xcb_window;
+  xcb_connection_t *xcb_connection;
+  createWindow(&xcb_window, &xcb_connection);
+
+  VkXcbSurfaceCreateInfoKHR xcbSurfaceCreateInfoKHR = {
+    VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR, // sType;
+    nullptr,                                       // pNext;
+    0,                                             // flags;
+    xcb_connection,                                // connection;
+    xcb_window                                     // window;
+  };
+
+  VkSurfaceKHR vulkanSurface;
+  vkCreateXcbSurfaceKHR(vulkanInstance.Instance,
+			&xcbSurfaceCreateInfoKHR,
+			nullptr,
+			&vulkanSurface);
+  
 }
 
 int main(int argc, char** argv) {
