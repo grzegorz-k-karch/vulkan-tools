@@ -2,8 +2,10 @@
 #define VULKAN_INFO_H_
 
 // vulkan
+#define VK_USE_PLATFORM_XCB_KHR
 #include "vulkan/vulkan_core.h"
 #include "vulkan/vulkan.h"
+#include "vulkan/vulkan_xcb.h"
 
 // std
 #include <vector>
@@ -12,6 +14,7 @@
 // project
 #include "XmlUtils.h"
 
+VkResult vulkanCall(VkResult result, const char* file, int line);
 
 struct VulkanInstanceLayerProperties {
 
@@ -121,12 +124,16 @@ struct VulkanDevice {
     }
   }
   void CreateDevice(VkPhysicalDevice physicalDevice,
-		    const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos,
 		    const std::vector<const char*>& extensionNames);
 
 };
 
-VkResult vulkanCall(VkResult result, const char* file, int line);
+struct VulkanSurface {
+
+  VkSurfaceKHR Surface;
+  
+  VkResult CreateSurface(const VkInstance instance);
+};
 
 
 #endif // VULKAN_INFO_H_

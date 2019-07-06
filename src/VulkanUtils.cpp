@@ -344,9 +344,21 @@ void VulkanPhysicalDeviceQueueFamilyProperties::Print()
 //----------------------------------------------------------------------------
 // VulkanDevice
 void VulkanDevice::CreateDevice(VkPhysicalDevice physicalDevice,
-				const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos,
 				const std::vector<const char*>& extensionNames)
 {
+  // TODO: choose queue families here
+  float queuePriority = 1.0f;
+  std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = {
+    {
+      VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
+      nullptr,                                    // pNext
+      0,                                          // flags
+      0,                                          // qeueueFamilyIndex
+      1,                                          // queueCount
+      &queuePriority                              // pQueuePriorities
+    }
+  };
+
   VkDeviceCreateInfo deviceCreateInfo = {
     VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,           // sType
     nullptr,                                        // pNext
@@ -368,4 +380,57 @@ void VulkanDevice::CreateDevice(VkPhysicalDevice physicalDevice,
   if (result == VK_SUCCESS) {
     DeviceCreated = true;
   }
+}
+
+// xcb
+#include <xcb/xcb.h>
+#include <xcb/xproto.h>
+
+// loosely based on https://en.wikipedia.org/wiki/XCB
+// and https://www.codeproject.com/Articles/1089819/An-Introduction-to-XCB-Programming
+void createWindow(xcb_window_t *window, xcb_connection_t **connection) {
+
+  *connection = xcb_connect(NULL, NULL);
+  if (xcb_connection_has_error(*connection)) {
+    std::cerr << "XCB connection failed. Exiting";
+  }
+
+  /* Obtain setup info and access the screen */
+  const xcb_setup_t *setup = xcb_get_setup(*connection);
+  xcb_screen_t *screen = xcb_setup_roots_iterator(setup).data;;
+
+  /* Create window */
+  *window = xcb_generate_id(*connection);
+  uint32_t prop_name = XCB_CW_BACK_PIXEL;
+  uint32_t prop_value = screen->white_pixel;
+
+  xcb_void_cookie_t window_cookie = xcb_create_window(*connection, screen->root_depth,
+						      *window, screen->root, 0, 0, 100, 100, 1,
+						      XCB_WINDOW_CLASS_INPUT_OUTPUT,
+						      screen->root_visual, prop_name, &prop_value);
+}
+
+//----------------------------------------------------------------------------
+// VulkanSurface
+VkResult VulkanSurface::CreateSurface(const VkInstance instance)
+{
+  xcb_window_t xcb_window;
+  xcb_connection_t *xcb_connection;
+  createWindow(&xcb_window, &xcb_connection);
+  
+  VkXcbSurfaceCreateInfoKHR xcbSurfaceCreateInfoKHR = {
+    VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR, // sType;
+    nullptr,                                       // pNext;
+    0,                                             // flags;
+    xcb_connection,                                // connection;
+    xcb_window                                     // window;
+  };
+
+  VkResult result = vulkanCall(vkCreateXcbSurfaceKHR(instance,  // instance
+						     &xcbSurfaceCreateInfoKHR, // pCreateInfo
+						     nullptr,                  // pAllocator
+						     &Surface),                // pSurface
+			       __FILE__,
+			       __LINE__);
+  return result;
 }
