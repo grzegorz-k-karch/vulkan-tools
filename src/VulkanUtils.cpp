@@ -225,7 +225,6 @@ void VulkanDeviceExtensionProperties::GetExtensionNames(uint32_t physicalDeviceI
       char *name = new char[VK_MAX_EXTENSION_NAME_SIZE];
       strncpy(name, prop.extensionName, sizeof(prop.extensionName));
       extensionNames.push_back(name);
-      std::cout << "||||||" << name << std::endl;
     }
   }
 }

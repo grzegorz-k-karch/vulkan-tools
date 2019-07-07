@@ -14,8 +14,20 @@ void get_properties() {
 
   VulkanInstanceLayerProperties vulkanInstanceLayerProperties;
   vulkanInstanceLayerProperties.Fetch();
-  std::vector<const char*> instanceLayerNames;
-  vulkanInstanceLayerProperties.GetLayerNames(instanceLayerNames);
+  std::vector<const char*> instanceLayerNames = {
+    "VK_LAYER_LUNARG_api_dump",
+    "VK_LAYER_LUNARG_assistant_layer",
+    "VK_LAYER_LUNARG_core_validation",
+    "VK_LAYER_LUNARG_monitor",
+    "VK_LAYER_LUNARG_object_tracker",
+    "VK_LAYER_LUNARG_parameter_validation",
+    "VK_LAYER_LUNARG_screenshot",
+    "VK_LAYER_LUNARG_standard_validation",
+    "VK_LAYER_GOOGLE_threading",
+    "VK_LAYER_GOOGLE_unique_objects",
+    "VK_LAYER_KHRONOS_validation"    
+  };
+  // vulkanInstanceLayerProperties.GetLayerNames(instanceLayerNames);
 
   VulkanInstanceExtensionProperties vulkanInstanceExtensionProperties;
   vulkanInstanceExtensionProperties.Fetch(instanceLayerNames, true);
@@ -38,9 +50,9 @@ void get_properties() {
   vulkanDeviceExtensionProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices,
   					instanceLayerNames);
   // TODO use selected extensions
-  std::vector<const char*> deviceExtensionNames;
-  vulkanDeviceExtensionProperties.GetExtensionNames(physicalDeviceId, 
-						    deviceExtensionNames);  
+  std::vector<const char*> deviceExtensionNames = {};
+  // vulkanDeviceExtensionProperties.GetExtensionNames(physicalDeviceId, 
+  // 						    deviceExtensionNames);  
 
   VulkanPhysicalDeviceProperties vulkanPhysicalDeviceProperties;
   vulkanPhysicalDeviceProperties.Fetch(physicalDevice);
