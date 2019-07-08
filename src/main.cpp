@@ -12,10 +12,11 @@ namespace po = boost::program_options;
 
 void get_properties() {
 
-  VulkanInstanceLayerProperties vulkanInstanceLayerProperties;
-  vulkanInstanceLayerProperties.Fetch();
+  // VulkanInstanceLayerProperties vulkanInstanceLayerProperties;
+  // vulkanInstanceLayerProperties.Fetch();
+  // vulkanInstanceLayerProperties.GetLayerNames(instanceLayerNames);
   std::vector<const char*> instanceLayerNames = {
-    "VK_LAYER_LUNARG_api_dump",
+    // "VK_LAYER_LUNARG_api_dump",
     "VK_LAYER_LUNARG_assistant_layer",
     "VK_LAYER_LUNARG_core_validation",
     "VK_LAYER_LUNARG_monitor",
@@ -27,14 +28,14 @@ void get_properties() {
     "VK_LAYER_GOOGLE_unique_objects",
     "VK_LAYER_KHRONOS_validation"    
   };
-  // vulkanInstanceLayerProperties.GetLayerNames(instanceLayerNames);
 
-  VulkanInstanceExtensionProperties vulkanInstanceExtensionProperties;
-  vulkanInstanceExtensionProperties.Fetch(instanceLayerNames, true);
-  std::vector<const char*> instanceExtensionNames;
-  vulkanInstanceExtensionProperties.GetExtensionNames(instanceExtensionNames);
-
-  // TODO: choose extensions here
+  // VulkanInstanceExtensionProperties vulkanInstanceExtensionProperties;
+  // vulkanInstanceExtensionProperties.Fetch(instanceLayerNames, true);
+  // vulkanInstanceExtensionProperties.GetExtensionNames(instanceExtensionNames);
+  std::vector<const char*> instanceExtensionNames = {
+    "VK_KHR_surface",
+    "VK_KHR_xcb_surface"
+  };
   
   VulkanInstance vulkanInstance;  
   vulkanInstance.CreateInstance(instanceLayerNames, instanceExtensionNames);
@@ -45,14 +46,14 @@ void get_properties() {
   uint32_t physicalDeviceId = 0;
   VkPhysicalDevice &physicalDevice =
     vulkanPhysicalDevices.PhysicalDevices[physicalDeviceId];
-
-  VulkanDeviceExtensionProperties vulkanDeviceExtensionProperties;
-  vulkanDeviceExtensionProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices,
-  					instanceLayerNames);
+  
   // TODO use selected extensions
-  std::vector<const char*> deviceExtensionNames = {};
+  // VulkanDeviceExtensionProperties vulkanDeviceExtensionProperties;
+  // vulkanDeviceExtensionProperties.Fetch(vulkanPhysicalDevices.PhysicalDevices,
+  // 					instanceLayerNames);
   // vulkanDeviceExtensionProperties.GetExtensionNames(physicalDeviceId, 
   // 						    deviceExtensionNames);  
+  std::vector<const char*> deviceExtensionNames = {};
 
   VulkanPhysicalDeviceProperties vulkanPhysicalDeviceProperties;
   vulkanPhysicalDeviceProperties.Fetch(physicalDevice);
@@ -69,7 +70,6 @@ void get_properties() {
 
   VulkanSurface vulkanSurface;
   vulkanSurface.CreateSurface(vulkanInstance.Instance);
-
 }
 
 int main(int argc, char** argv) {
